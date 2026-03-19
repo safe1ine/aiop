@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: deploy/server.Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      AIPO_ADDR: ":8080"
+      AIPO_JWT_SECRET: "${AIPO_JWT_SECRET:-change-me}"
+      AIPO_DB_PATH: "/data/aipo.db"
+      AIPO_ADMIN_USER: "${AIPO_ADMIN_USER:-admin}"
+      AIPO_ADMIN_PASS: "${AIPO_ADMIN_PASS:-admin}"
+    volumes:
+      - server-data:/data
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: deploy/frontend.Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - server
+    restart: unless-stopped
+
+volumes:
+  server-data:
